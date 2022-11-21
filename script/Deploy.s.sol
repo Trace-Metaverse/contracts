@@ -41,7 +41,19 @@ contract VestingScript is Script {
     address partners_ = 0xf915ED498c610C2EA634d9e7C8C10f211711812b;
     address seed_ = 0x5D0d32aC4E4AB4d5e7F9CB337Af3f2A1b151A428;
     address private_ = 0x9f391D569985f8dDF533422506f381b24292E6F8;
-    address strategic_ = 0x750879B1c38cDfD054563f1Ec5764631f0E53bE7;
+
+    address strategic0_ = 0xbd2F6719108B320CB958F183B8FEAe2072461A7E;
+    address strategic1_ = 0x1B35DdeD7da4764b9f7005347bD7e98D0D0E3670;
+    address strategic2_ = 0x67Af114ecB144d992Bf38f62ec6a4aE7Ec9C2cB7;
+    address strategic3_ = 0xb9DaE143aa92dD306B4C0b547C376CC6A7263067;
+    address strategic4_ = 0x933a7bd300Bc7AF1e4793a6470c02124CC6d44B9;
+    address strategic5_ = 0x783B88423559bB644b487c978482cEcBe3514Cc1;
+    address strategic6_ = 0xD706fbd1aaf74bEe474Ba912D07Ea7D3B658e0C7;
+    address strategic7_ = 0xdC67DAd2853915aF0BE07A8E0B9fb538E6E87D51;
+    address strategic8_ = 0x77dd2724cF0C88b6D21D5Ae67e3B7Ce1AF93C5bf;
+    address strategic9_ = 0x4C7379B8f2DF5db6Cb666341359Ecd10777cf28A;
+    address strategic10_ = 0x645251650052BF8a945608b035dE8C09F498Df3a;
+
     address ambasador_  = 0xd309C9a5dE9f8a776A5342Ae3eb4963F989156D4;
     address preSale_ = 0x6cF8F5060dE09D5837C0f294843E39949F585e36;
     address publicSale_ = 0x18969c84F2b98d569023Ee2d145fc6ae88A73a14;
@@ -101,9 +113,79 @@ contract VestingScript is Script {
         });
 
         // 5% unlocked at TGE, 2m cliff, 3,5% unlock every month
-        Group memory g5 = Group({
-            beneficiary: strategic_,
-            percentAll: 700,
+        Group memory g50 = Group({
+            beneficiary: strategic0_,
+            percentAll: 100,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g51 = Group({
+            beneficiary: strategic1_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g52 = Group({
+            beneficiary: strategic2_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g53 = Group({
+            beneficiary: strategic3_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g54 = Group({
+            beneficiary: strategic4_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g55 = Group({
+            beneficiary: strategic5_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g56 = Group({
+            beneficiary: strategic6_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g57 = Group({
+            beneficiary: strategic7_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g58 = Group({
+            beneficiary: strategic8_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g59 = Group({
+            beneficiary: strategic9_,
+            percentAll: 60,
+            percentTge: 500,
+            percentMonth: 350,
+            cliff: 2
+        });
+        Group memory g510 = Group({
+            beneficiary: strategic10_,
+            percentAll: 60,
             percentTge: 500,
             percentMonth: 350,
             cliff: 2
@@ -167,7 +249,17 @@ contract VestingScript is Script {
         groups.push(g2);
         groups.push(g3);
         groups.push(g4);
-        groups.push(g5);
+        groups.push(g50);
+        groups.push(g51);
+        groups.push(g52);
+        groups.push(g53);
+        groups.push(g54);
+        groups.push(g55);
+        groups.push(g56);
+        groups.push(g57);
+        groups.push(g58);
+        groups.push(g59);
+        groups.push(g510);
         groups.push(g6);
         groups.push(g7);
         groups.push(g8);
