@@ -8,7 +8,7 @@ contract ACETest is Test {
     ACE public ace;
 
     function setUp() public {
-        ace = new ACE(address(this));
+        ace = new ACE();
     }
 
     function testSymbol() public {

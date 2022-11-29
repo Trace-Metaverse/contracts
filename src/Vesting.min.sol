@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 /*
@@ -40,13 +40,13 @@ contract TV is Ownable, ReentrancyGuard {
         // Beneficiary of tokens after they are released
         address beneficiary;
 
-        // Cliff period in seconds
+        // Cliff period in seconds (seconds)
         uint256 cliff;
 
-        // Start time of the vesting period
+        // Start time of the vesting period (timestamp + seconds)
         uint256 start;
 
-        // Duration of the vesting period in seconds
+        // Duration of the vesting period in seconds (all seconds)
         uint256 duration;
 
         // Duration of a slice period for the vesting in seconds
@@ -165,7 +165,7 @@ contract TV is Ownable, ReentrancyGuard {
     /**
     * @notice Creates a new vesting schedule for a beneficiary.
     * @param _beneficiary address of the beneficiary to whom vested tokens are transferred
-    * @param _start start time of the vesting period
+    * @param _start start time of the vesting period = getCurrentTime() + start time
     * @param _cliff duration in seconds of the cliff in which tokens will begin to vest
     * @param _duration duration in seconds of the period in which the tokens will vest
     * @param _slicePeriodSeconds duration of a slice period for the vesting in seconds
@@ -355,14 +355,11 @@ contract TV is Ownable, ReentrancyGuard {
         uint256 currentTime = getCurrentTime();
         if ((currentTime < vestingSchedule.cliff) || vestingSchedule.revoked == true) {
             return 0;
-        } else if (currentTime >= vestingSchedule.start.add(vestingSchedule.duration)) {
+        } else if (currentTime >= vestingSchedule.cliff.add(vestingSchedule.duration)) {
             return vestingSchedule.amountTotal.sub(vestingSchedule.released);
         } else {
-            uint256 timeFromStart = currentTime.sub(vestingSchedule.start);
-            uint secondsPerSlice = vestingSchedule.slicePeriodSeconds;
-            uint256 vestedSlicePeriods = timeFromStart.div(secondsPerSlice);
-            uint256 vestedSeconds = vestedSlicePeriods.mul(secondsPerSlice);
-            uint256 vestedAmount = vestingSchedule.amountTotal.mul(vestedSeconds).div(vestingSchedule.duration);
+            uint256 timeFromCliff = currentTime.sub(vestingSchedule.cliff);
+            uint256 vestedAmount = vestingSchedule.amountTotal.mul(timeFromCliff).div(vestingSchedule.duration);
             vestedAmount = vestedAmount.sub(vestingSchedule.released);
             return vestedAmount;
         }

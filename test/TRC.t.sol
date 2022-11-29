@@ -8,7 +8,7 @@ contract TRCTest is Test {
     TRC public trc;
 
     function setUp() public {
-        trc = new TRC(address(this));
+        trc = new TRC();
     }
 
     function testSymbol() public {

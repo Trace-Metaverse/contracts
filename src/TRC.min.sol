@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.9;
 
 /*
               _____ ____      _    ____ _____ 
@@ -22,41 +22,37 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-interface IAntisnipe {
-    function assureCanTransfer(
-        address sender,
-        address from,
-        address to,
-        uint256 amount
-    ) external;
-}
+contract TRC is ERC20, ERC20Burnable, Pausable, AccessControl, ERC20Permit, ERC20Votes {
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-contract TRC is ERC20, ERC20Burnable, ERC20Permit, ERC20Votes, AccessControl {
-    IAntisnipe public antisnipe = IAntisnipe(address(0));
-    bool public antisnipeDisable;
-
-    constructor(address _admin) 
+    constructor()
         ERC20("Trace Governance Token", "TRC") 
         ERC20Permit("Trace Governance Token")
     {
         _mint(msg.sender, 5_000_000_000 * 10 ** decimals());
-        _grantRole(DEFAULT_ADMIN_ROLE, _admin);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(PAUSER_ROLE, msg.sender);
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal override {
+    function pause() public onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+    function unpause() public onlyRole(PAUSER_ROLE) {
+        _unpause();
+    }
+
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal
+        whenNotPaused
+        override
+    {
         super._beforeTokenTransfer(from, to, amount);
-        if (from == address(0) || to == address(0)) return;
-        if (!antisnipeDisable && address(antisnipe) != address(0)) {
-            antisnipe.assureCanTransfer(msg.sender, from, to, amount);
-        }
     }
 
     function _afterTokenTransfer(address from, address to, uint256 amount)
@@ -78,14 +74,5 @@ contract TRC is ERC20, ERC20Burnable, ERC20Permit, ERC20Votes, AccessControl {
         override(ERC20, ERC20Votes)
     {
         super._burn(account, amount);
-    }
-
-    function setAntisnipeDisable() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(!antisnipeDisable);
-        antisnipeDisable = true;
-    }
-
-    function setAntisnipeAddress(address addr) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        antisnipe = IAntisnipe(addr);
     }
 }
