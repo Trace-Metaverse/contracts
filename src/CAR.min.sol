@@ -20,11 +20,11 @@ pragma solidity ^0.8.4;
                 '--------------------------'
 */ 
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts@4.7.3/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.7.3/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts@4.7.3/security/Pausable.sol";
+import "@openzeppelin/contracts@4.7.3/access/AccessControl.sol";
+import "@openzeppelin/contracts@4.7.3/utils/Counters.sol";
 
 contract TraceNFTCar is ERC721, ERC721Enumerable, Pausable, AccessControl {
     using Counters for Counters.Counter;
