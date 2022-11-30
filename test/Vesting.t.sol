@@ -52,9 +52,9 @@ contract VestingTest is Test {
             uint256 _amountTge = (_amountAll * groups[i].percentTge) / 10000;
             uint256 _amount = _amountAll - _amountTge;
             if (_amountTge > 0) {
-                IERC20(address(trc)).transfer(groups[i].beneficiary, _amountTge);
+                TRC(address(trc)).transfer(groups[i].beneficiary, _amountTge);
             }
-            IERC20(address(trc)).transfer(address(tv), _amount);
+            TRC(address(trc)).transfer(address(tv), _amount);
             TV(payable(tv)).createVestingSchedule(
                 groups[i].beneficiary,
                 block.timestamp + 1 * month,

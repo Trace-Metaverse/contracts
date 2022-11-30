@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
 import "forge-std/Vm.sol";
@@ -9,12 +8,10 @@ import "../src/ACE.min.sol";
 import "../src/TRC.min.sol";
 import "../src/Vesting.min.sol";
 
-contract TokenScript is Script {
-
-    address admin_ = address(this);
-
+contract Tokens is Script {
     function run() public {
-        vm.startBroadcast();
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
 
         ACE ACE_TOKEN = new ACE();
         TRC TRC_TOKEN = new TRC();
@@ -33,10 +30,10 @@ contract TokenScript is Script {
     }
 }
 
-contract VestingScript is Script {
+contract Vesting is Script {
 
-    address TRC_TOKEN = address(0); // CHANGE TRC_TOKEN!
-    address TV_CONTRACT = address(0); // CHANGE TV_CONTRACT!
+    address TRC_TOKEN = address(0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d); // CHANGE TRC_TOKEN!
+    address TV_CONTRACT = address(0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6); // CHANGE TV_CONTRACT!
 
     address[21] adrs = [
         0x813d71359D8B2D663E9af767B509C429F4A73D7F, // team
@@ -70,10 +67,9 @@ contract VestingScript is Script {
         uint256 cliff;
     }
 
-    function setUp() public {}
-
     function run() public {
-        vm.startBroadcast();
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
 
         Group[21] memory groups = [
             // 4% Unlocked every month starting from 12th
@@ -246,9 +242,9 @@ contract VestingScript is Script {
             uint256 _amountTge = (_amountAll * groups[i].percentTge) / 10000;
             uint256 _amount = _amountAll - _amountTge;
             if (_amountTge > 0) {
-                IERC20(address(TRC_TOKEN)).transfer(groups[i].beneficiary, _amountTge);
+                TRC(address(TRC_TOKEN)).transfer(groups[i].beneficiary, _amountTge);
             }
-            IERC20(address(TRC_TOKEN)).transfer(address(TV_CONTRACT), _amount);
+            TRC(address(TRC_TOKEN)).transfer(address(TV_CONTRACT), _amount);
             TV(payable(TV_CONTRACT)).createVestingSchedule(
                 groups[i].beneficiary,
                 block.timestamp + 1 * month,
@@ -258,7 +254,12 @@ contract VestingScript is Script {
                 true, 
                 _amount
             );
+            console.logUint(i);
+            console.logUint(_amount);
+            console.logAddress(address(groups[i].beneficiary));
         }
+
+        TRC(address(TRC_TOKEN)).pause();
 
         vm.stopBroadcast();
     }

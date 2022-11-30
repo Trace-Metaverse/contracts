@@ -36,31 +36,22 @@ contract TV is Ownable, ReentrancyGuard {
     
     struct VestingSchedule{
         bool initialized;
-
         // Beneficiary of tokens after they are released
         address beneficiary;
-
         // Cliff period in seconds (seconds)
         uint256 cliff;
-
         // Start time of the vesting period (timestamp + seconds)
         uint256 start;
-
         // Duration of the vesting period in seconds (all seconds)
         uint256 duration;
-
         // Duration of a slice period for the vesting in seconds
         uint256 slicePeriodSeconds;
-
         // Whether or not the vesting is revocable
         bool revocable;
-
         // Total amount of tokens to be released at the end of the vesting
         uint256 amountTotal;
-
         // Amount of tokens released
         uint256 released;
-
         // Whether or not the vesting has been revoked
         bool revoked;
     }
