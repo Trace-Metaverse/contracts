@@ -24,11 +24,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract TRC is ERC20, ERC20Burnable, Pausable, AccessControl, ERC20Permit, ERC20Votes {
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+contract TRC is ERC20, ERC20Burnable, Pausable, AccessControl, ERC20Permit {
 
     constructor()
         ERC20("Trace Governance Token", "TRC") 
@@ -36,14 +34,13 @@ contract TRC is ERC20, ERC20Burnable, Pausable, AccessControl, ERC20Permit, ERC2
     {
         _mint(msg.sender, 5_000_000_000 * 10 ** decimals());
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(PAUSER_ROLE, msg.sender);
     }
 
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
         _pause();
     }
 
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() public onlyRole(DEFAULT_ADMIN_ROLE) {
         _unpause();
     }
 
@@ -57,22 +54,26 @@ contract TRC is ERC20, ERC20Burnable, Pausable, AccessControl, ERC20Permit, ERC2
 
     function _afterTokenTransfer(address from, address to, uint256 amount)
         internal
-        override(ERC20, ERC20Votes)
+        override(ERC20)
     {
         super._afterTokenTransfer(from, to, amount);
     }
 
     function _mint(address to, uint256 amount)
         internal
-        override(ERC20, ERC20Votes)
+        override(ERC20)
     {
         super._mint(to, amount);
     }
 
     function _burn(address account, uint256 amount)
         internal
-        override(ERC20, ERC20Votes)
+        override(ERC20)
     {
         super._burn(account, amount);
+    }
+
+    function decimals() public view virtual override returns (uint8) {
+        return 2;
     }
 }
