@@ -33,7 +33,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract TV is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
-    
+
     struct VestingSchedule{
         bool initialized;
         // Beneficiary of tokens after they are released
@@ -68,10 +68,10 @@ contract TV is Ownable, ReentrancyGuard {
     event Revoked();
 
     /**
-    * @dev Reverts if no vesting schedule matches the passed identifier.
+    * @dev Reverts if the address is null.
     */
-    modifier onlyIfVestingScheduleExists(bytes32 vestingScheduleId) {
-        require(vestingSchedules[vestingScheduleId].initialized == true);
+    modifier notNull(address _address) {
+        require(_address != address(0), "Invalid address");
         _;
     }
 
@@ -79,6 +79,7 @@ contract TV is Ownable, ReentrancyGuard {
     * @dev Reverts if the vesting schedule does not exist or has been revoked.
     */
     modifier onlyIfVestingScheduleNotRevoked(bytes32 vestingScheduleId) {
+        require(vestingSchedules[vestingScheduleId].beneficiary != address(0));
         require(vestingSchedules[vestingScheduleId].initialized == true);
         require(vestingSchedules[vestingScheduleId].revoked == false);
         _;
@@ -172,16 +173,16 @@ contract TV is Ownable, ReentrancyGuard {
         bool _revocable,
         uint256 _amount
     )
-        public
-        onlyOwner {
+    public
+    onlyOwner {
         require(
-            this.getWithdrawableAmount() >= _amount,
+            getWithdrawableAmount() >= _amount,
             "TokenVesting: cannot create vesting schedule because not sufficient tokens"
         );
         require(_duration > 0, "TokenVesting: duration must be > 0");
         require(_amount > 0, "TokenVesting: amount must be > 0");
         require(_slicePeriodSeconds >= 1, "TokenVesting: slicePeriodSeconds must be >= 1");
-        bytes32 vestingScheduleId = this.computeNextVestingScheduleIdForHolder(_beneficiary);
+        bytes32 vestingScheduleId = computeNextVestingScheduleIdForHolder(_beneficiary);
         uint256 cliff = _start.add(_cliff);
         vestingSchedules[vestingScheduleId] = VestingSchedule(
             true,
@@ -206,9 +207,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @param vestingScheduleId the vesting schedule identifier
     */
     function revoke(bytes32 vestingScheduleId)
-        public
-        onlyOwner
-        onlyIfVestingScheduleNotRevoked(vestingScheduleId){
+    public
+    onlyOwner
+    onlyIfVestingScheduleNotRevoked(vestingScheduleId){
         VestingSchedule storage vestingSchedule = vestingSchedules[vestingScheduleId];
         require(vestingSchedule.revocable == true, "TokenVesting: vesting is not revocable");
         uint256 vestedAmount = _computeReleasableAmount(vestingSchedule);
@@ -225,10 +226,10 @@ contract TV is Ownable, ReentrancyGuard {
     * @param amount the amount to withdraw
     */
     function withdraw(uint256 amount)
-        public
-        nonReentrant
-        onlyOwner{
-        require(this.getWithdrawableAmount() >= amount, "TokenVesting: not enough withdrawable funds");
+    public
+    nonReentrant
+    onlyOwner{
+        require(getWithdrawableAmount() >= amount, "TokenVesting: not enough withdrawable funds");
         _token.safeTransfer(owner(), amount);
     }
 
@@ -241,9 +242,9 @@ contract TV is Ownable, ReentrancyGuard {
         bytes32 vestingScheduleId,
         uint256 amount
     )
-        public
-        nonReentrant
-        onlyIfVestingScheduleNotRevoked(vestingScheduleId){
+    public
+    nonReentrant
+    onlyIfVestingScheduleNotRevoked(vestingScheduleId){
         VestingSchedule storage vestingSchedule = vestingSchedules[vestingScheduleId];
         bool isBeneficiary = msg.sender == vestingSchedule.beneficiary;
         bool isOwner = msg.sender == owner();
@@ -264,9 +265,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @return _ the number of vesting schedules
     */
     function getVestingSchedulesCount()
-        public
-        view
-        returns(uint256){
+    public
+    view
+    returns(uint256){
         return vestingSchedulesIds.length;
     }
 
@@ -275,10 +276,10 @@ contract TV is Ownable, ReentrancyGuard {
     * @return _ the vested amount
     */
     function computeReleasableAmount(bytes32 vestingScheduleId)
-        public
-        onlyIfVestingScheduleNotRevoked(vestingScheduleId)
-        view
-        returns(uint256){
+    public
+    onlyIfVestingScheduleNotRevoked(vestingScheduleId)
+    view
+    returns(uint256){
         VestingSchedule storage vestingSchedule = vestingSchedules[vestingScheduleId];
         return _computeReleasableAmount(vestingSchedule);
     }
@@ -288,9 +289,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @return _ the vesting schedule structure information
     */
     function getVestingSchedule(bytes32 vestingScheduleId)
-        public
-        view
-        returns(VestingSchedule memory){
+    public
+    view
+    returns(VestingSchedule memory){
         return vestingSchedules[vestingScheduleId];
     }
 
@@ -299,9 +300,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @return _ the amount of tokens
     */
     function getWithdrawableAmount()
-        public
-        view
-        returns(uint256){
+    public
+    view
+    returns(uint256){
         return _token.balanceOf(address(this)).sub(vestingSchedulesTotalAmount);
     }
 
@@ -309,9 +310,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @dev Computes the next vesting schedule identifier for a given holder address.
     */
     function computeNextVestingScheduleIdForHolder(address holder)
-        public
-        view
-        returns(bytes32){
+    public
+    view
+    returns(bytes32){
         return computeVestingScheduleIdForAddressAndIndex(holder, holdersVestingCount[holder]);
     }
 
@@ -319,9 +320,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @dev Returns the last vesting schedule for a given holder address.
     */
     function getLastVestingScheduleForHolder(address holder)
-        public
-        view
-        returns(VestingSchedule memory){
+    public
+    view
+    returns(VestingSchedule memory){
         return vestingSchedules[computeVestingScheduleIdForAddressAndIndex(holder, holdersVestingCount[holder] - 1)];
     }
 
@@ -329,9 +330,9 @@ contract TV is Ownable, ReentrancyGuard {
     * @dev Computes the vesting schedule identifier for an address and an index.
     */
     function computeVestingScheduleIdForAddressAndIndex(address holder, uint256 index)
-        public
-        pure
-        returns(bytes32){
+    public
+    pure
+    returns(bytes32){
         return keccak256(abi.encodePacked(holder, index));
     }
 
@@ -357,10 +358,10 @@ contract TV is Ownable, ReentrancyGuard {
     }
 
     function getCurrentTime()
-        internal
-        virtual
-        view
-        returns(uint256){
+    internal
+    virtual
+    view
+    returns(uint256){
         return block.timestamp;
     }
 
