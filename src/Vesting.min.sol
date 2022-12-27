@@ -174,6 +174,7 @@ contract TV is Ownable, ReentrancyGuard {
         uint256 _amount
     )
     public
+    notNull(_beneficiary)
     onlyOwner {
         require(
             getWithdrawableAmount() >= _amount,
