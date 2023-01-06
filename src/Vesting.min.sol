@@ -33,6 +33,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract TV is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
+    address public vestingCreator;
 
     struct VestingSchedule{
         bool initialized;
@@ -76,6 +77,18 @@ contract TV is Ownable, ReentrancyGuard {
     }
 
     /**
+    * @dev Reverts if the address is not vestingCreator address.
+    */
+     modifier vestingCreatorOnly() {
+        require(vestingCreator == msg.sender, "Address is not vestingCreator");
+        _;
+    }
+
+    function changeVestingCreator(address _new) public vestingCreatorOnly() {
+        vestingCreator = _new;
+    }
+
+    /**
     * @dev Reverts if the vesting schedule does not exist or has been revoked.
     */
     modifier onlyIfVestingScheduleNotRevoked(bytes32 vestingScheduleId) {
@@ -92,6 +105,7 @@ contract TV is Ownable, ReentrancyGuard {
     constructor(address token_) {
         require(token_ != address(0x0));
         _token = IERC20(token_);
+        vestingCreator = msg.sender;
     }
 
     receive() external payable {}
@@ -175,7 +189,7 @@ contract TV is Ownable, ReentrancyGuard {
     )
     public
     notNull(_beneficiary)
-    onlyOwner {
+    vestingCreatorOnly() {
         require(
             getWithdrawableAmount() >= _amount,
             "TokenVesting: cannot create vesting schedule because not sufficient tokens"
